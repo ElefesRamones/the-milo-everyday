@@ -11,10 +11,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  env: {
-    EMAIL_USER: process.env.EMAIL_USER,
-    EMAIL_PASS: process.env.EMAIL_PASS,
-    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  // Remove explicit env config - let Next.js handle it naturally
+  experimental: {
+    // Enable runtime environment variable access
+    serverComponentsExternalPackages: ['nodemailer'],
   },
 };
 

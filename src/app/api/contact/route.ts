@@ -3,17 +3,35 @@ import nodemailer from 'nodemailer';
 
 export async function POST(request: NextRequest) {
   try {
-    // Log environment variable availability
-    console.log('Environment check:', {
-      emailUser: !!process.env.EMAIL_USER,
-      emailPass: !!process.env.EMAIL_PASS,
-      emailUserValue: process.env.EMAIL_USER ? 'SET' : 'NOT_SET',
-      emailPassValue: process.env.EMAIL_PASS ? 'SET' : 'NOT_SET'
+    // Try multiple ways to access environment variables
+    const emailUser = process.env.EMAIL_USER || process.env.SMTP_USER || process.env.GMAIL_USER;
+    const emailPass = process.env.EMAIL_PASS || process.env.SMTP_PASS || process.env.GMAIL_PASS;
+    
+    // Log comprehensive environment variable check
+    console.log('Comprehensive environment check:', {
+      EMAIL_USER: !!process.env.EMAIL_USER,
+      EMAIL_PASS: !!process.env.EMAIL_PASS,
+      SMTP_USER: !!process.env.SMTP_USER,
+      SMTP_PASS: !!process.env.SMTP_PASS,
+      GMAIL_USER: !!process.env.GMAIL_USER,
+      GMAIL_PASS: !!process.env.GMAIL_PASS,
+      emailUser: !!emailUser,
+      emailPass: !!emailPass,
+      NODE_ENV: process.env.NODE_ENV,
+      VERCEL_ENV: process.env.VERCEL_ENV,
+      totalEnvVars: Object.keys(process.env).length,
+      emailRelatedKeys: Object.keys(process.env).filter(key => 
+        key.toLowerCase().includes('email') || 
+        key.toLowerCase().includes('smtp') || 
+        key.toLowerCase().includes('mail')
+      )
     });
 
     // Check if environment variables are available
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    if (!emailUser || !emailPass) {
       console.error('Missing environment variables:', {
+        emailUser: !!emailUser,
+        emailPass: !!emailPass,
         EMAIL_USER: !!process.env.EMAIL_USER,
         EMAIL_PASS: !!process.env.EMAIL_PASS
       });
@@ -65,15 +83,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Invalid email format' },
         { status: 400 }
-      );
-    }// Create transporter using Gmail SMTP
+      );    }
+
+    // Create transporter using Gmail SMTP with found credentials
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,
       secure: false, // true for 465, false for other ports
       auth: {
-        user: process.env.EMAIL_USER, // Ramones' Gmail address
-        pass: process.env.EMAIL_PASS, // App password (not regular password)
+        user: emailUser, // Use the found email user variable
+        pass: emailPass, // Use the found email pass variable
       },
       tls: {
         rejectUnauthorized: false
