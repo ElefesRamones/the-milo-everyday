@@ -69,9 +69,9 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     });
 
-    // Send email using Resend (using test domain for now)
+    // Send email using Resend
     const { data, error } = await resend.emails.send({
-      from: 'Acme <onboarding@resend.dev>', // Using Resend's test domain
+      from: 'Contact Form <noreply@ramonescapulong.com>', // Must be from your verified domain
       to: ['elefesramones51@gmail.com'],
       subject: `New Contact Form Message from ${name}`,
       html: `
