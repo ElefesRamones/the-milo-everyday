@@ -111,8 +111,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { message: 'Email sent successfully' },
       { status: 200 }
-    );
-  } catch (error) {
+    );  } catch (error) {
     console.error('Error sending email:', error);
     
     // Log detailed error information for debugging
@@ -121,6 +120,13 @@ export async function POST(request: NextRequest) {
       console.error('Error message:', error.message);
       console.error('Error stack:', error.stack);
     }
+    
+    // Log environment variable status for debugging
+    console.error('Environment check:', {
+      emailUserExists: !!process.env.EMAIL_USER,
+      emailPassExists: !!process.env.EMAIL_PASS,
+      nodeEnv: process.env.NODE_ENV
+    });
     
     return NextResponse.json(
       { error: 'Failed to send email. Please try again or contact directly.' },
