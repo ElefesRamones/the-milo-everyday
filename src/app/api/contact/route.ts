@@ -3,7 +3,53 @@ import nodemailer from 'nodemailer';
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, projectType, message } = await request.json();
+    // Log environment variable availability
+    console.log('Environment check:', {
+      emailUser: !!process.env.EMAIL_USER,
+      emailPass: !!process.env.EMAIL_PASS,
+      emailUserValue: process.env.EMAIL_USER ? 'SET' : 'NOT_SET',
+      emailPassValue: process.env.EMAIL_PASS ? 'SET' : 'NOT_SET'
+    });
+
+    // Check if environment variables are available
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.error('Missing environment variables:', {
+        EMAIL_USER: !!process.env.EMAIL_USER,
+        EMAIL_PASS: !!process.env.EMAIL_PASS
+      });
+      return NextResponse.json(
+        { error: 'Server configuration error. Please contact support.' },
+        { status: 500 }
+      );
+    }
+
+    // Parse request data - handle both JSON and FormData
+    let formData;
+    const contentType = request.headers.get('content-type') || '';
+    
+    if (contentType.includes('application/json')) {
+      formData = await request.json();
+    } else if (contentType.includes('multipart/form-data') || contentType.includes('application/x-www-form-urlencoded')) {
+      const form = await request.formData();
+      formData = {
+        name: form.get('name') as string,
+        email: form.get('email') as string,
+        projectType: form.get('projectType') as string,
+        message: form.get('message') as string
+      };
+    } else {
+      // Try to parse as JSON as fallback
+      try {
+        formData = await request.json();
+      } catch {
+        return NextResponse.json(
+          { error: 'Invalid request format' },
+          { status: 400 }
+        );
+      }
+    }
+
+    const { name, email, projectType, message } = formData;
 
     // Validate required fields
     if (!name || !email || !projectType || !message) {
@@ -20,7 +66,7 @@ export async function POST(request: NextRequest) {
         { error: 'Invalid email format' },
         { status: 400 }
       );
-    }    // Create transporter using Gmail SMTP
+    }// Create transporter using Gmail SMTP
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,
