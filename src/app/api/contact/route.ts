@@ -5,6 +5,11 @@ export async function POST(request: NextRequest) {
   try {
     const { name, email, projectType, message } = await request.json();
 
+    // Debug: Log environment variables (without exposing sensitive data)
+    console.log('EMAIL_USER exists:', !!process.env.EMAIL_USER);
+    console.log('EMAIL_PASS exists:', !!process.env.EMAIL_PASS);
+    console.log('EMAIL_USER value:', process.env.EMAIL_USER);
+
     // Validate required fields
     if (!name || !email || !projectType || !message) {
       return NextResponse.json(
@@ -104,9 +109,16 @@ export async function POST(request: NextRequest) {
       { message: 'Email sent successfully' },
       { status: 200 }
     );
-
   } catch (error) {
     console.error('Error sending email:', error);
+    
+    // Log detailed error information for debugging
+    if (error instanceof Error) {
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
+    
     return NextResponse.json(
       { error: 'Failed to send email. Please try again or contact directly.' },
       { status: 500 }
