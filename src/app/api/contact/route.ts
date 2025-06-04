@@ -5,11 +5,6 @@ export async function POST(request: NextRequest) {
   try {
     const { name, email, projectType, message } = await request.json();
 
-    // Debug: Log environment variables (without exposing sensitive data)
-    console.log('EMAIL_USER exists:', !!process.env.EMAIL_USER);
-    console.log('EMAIL_PASS exists:', !!process.env.EMAIL_PASS);
-    console.log('EMAIL_USER value:', process.env.EMAIL_USER);
-
     // Validate required fields
     if (!name || !email || !projectType || !message) {
       return NextResponse.json(
@@ -27,12 +22,20 @@ export async function POST(request: NextRequest) {
       );
     }    // Create transporter using Gmail SMTP
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.EMAIL_USER, // Ramones' Gmail address
         pass: process.env.EMAIL_PASS, // App password (not regular password)
       },
+      tls: {
+        rejectUnauthorized: false
+      }
     });
+
+    // Verify SMTP connection
+    await transporter.verify();
 
     // Email content for Ramones
     const mailOptions = {
