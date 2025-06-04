@@ -4,7 +4,7 @@ formData.append('name', 'Test User');
 formData.append('email', 'test@example.com');
 formData.append('message', 'This is a test message to debug the contact form issue');
 
-fetch('https://ramonescapulong.com/api/contact', {
+fetch('https://www.ramonescapulong.com/api/contact', {
   method: 'POST',
   body: formData
 })
