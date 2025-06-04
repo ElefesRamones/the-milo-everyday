@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
+// Updated: 2025-06-04 18:30 - Environment variables reconfigured
 export async function POST(request: NextRequest) {
   try {
     // Try multiple ways to access environment variables
