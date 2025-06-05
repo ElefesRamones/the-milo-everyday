@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build-functions": "cd netlify/functions && npm install"
   },
   "dependencies": {
     "cloudinary": "^2.6.1",

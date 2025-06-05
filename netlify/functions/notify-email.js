@@ -1,18 +1,33 @@
-// Reliable email handler using Resend API
+// Simple email notification handler for Netlify
 exports.handler = async (event, context) => {
-  console.log('Email notification function triggered');
-  console.log('Event:', event.httpMethod, event.path);
-  console.log('Headers:', event.headers);
+  console.log('=== EMAIL FUNCTION TRIGGERED ===');
+  console.log('Method:', event.httpMethod);
+  console.log('Path:', event.path);
+  console.log('Headers:', JSON.stringify(event.headers, null, 2));
+  console.log('Body:', event.body);
   
-  // Handle both form submissions and direct function calls
+  // CORS headers for all responses
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json'
+  };
+
+  // Handle preflight OPTIONS request
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers,
+      body: ''
+    };
+  }
+
+  // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST'
-      },
+      headers,
       body: JSON.stringify({ error: 'Method not allowed' })
     };
   }
