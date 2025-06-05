@@ -19,11 +19,10 @@ const ContactForm = () => {
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
       
-      console.log('Form submission started...', data);
-        // Step 1: Send email notification first
+      console.log('Form submission started...', data);      // Step 1: Send email notification first
       try {
         console.log('Sending email notification...');
-        const emailResponse = await fetch('/.netlify/functions/notify-email-simple', {
+        const emailResponse = await fetch('/api/notify-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
