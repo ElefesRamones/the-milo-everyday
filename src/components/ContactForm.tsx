@@ -4,35 +4,80 @@ import { useState } from 'react';
 
 const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Prevent default to handle submission manually
+    
     if (isSubmitting) return;
     
     setIsSubmitting(true);
+    setSubmitStatus('submitting');
     
     try {
       // Get form data
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
       
-      // Also send to our email function as backup
-      fetch('/.netlify/functions/notify-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      }).catch(err => {
-        console.log('Email function error (non-critical):', err);
+      console.log('Form submission started...', data);
+      
+      // Step 1: Send email notification first
+      try {
+        console.log('Sending email notification...');
+        const emailResponse = await fetch('/.netlify/functions/notify-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+        
+        const emailResult = await emailResponse.text();
+        console.log('Email function response:', emailResponse.status, emailResult);
+        
+        if (emailResponse.ok) {
+          console.log('✅ Email notification sent successfully');
+        } else {
+          console.log('⚠️ Email function failed, but continuing with form submission');
+        }
+      } catch (emailError) {
+        console.log('⚠️ Email function error (continuing anyway):', emailError);
+      }
+      
+      // Step 2: Submit to Netlify forms
+      console.log('Submitting to Netlify forms...');
+      const netlifyFormData = new URLSearchParams();
+      formData.forEach((value, key) => {
+        netlifyFormData.append(key, value.toString());
       });
       
-      // Let the form submit normally to Netlify
+      const netlifyResponse = await fetch('/contact/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: netlifyFormData.toString()
+      });
+      
+      console.log('Netlify form response:', netlifyResponse.status);
+      
+      if (netlifyResponse.ok || netlifyResponse.status === 302) {
+        console.log('✅ Form submitted to Netlify successfully');
+        setSubmitStatus('success');
+        
+        // Redirect to success page
+        window.location.href = '/success/';
+      } else {
+        console.log('❌ Netlify form submission failed');
+        setSubmitStatus('error');
+      }
+      
     } catch (error) {
-      console.log('Form submission error:', error);
+      console.error('Form submission error:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
     }
-    
-    // Don't prevent default - let Netlify handle the form submission
-    setIsSubmitting(false);
   };
 
   return (
@@ -125,10 +170,27 @@ const ContactForm = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full px-6 py-3 rounded-lg font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className={`w-full px-6 py-3 rounded-lg font-medium transition-colors ${
+              isSubmitting 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : submitStatus === 'error'
+                ? 'bg-red-600 hover:bg-red-700'
+                : 'bg-blue-600 hover:bg-blue-700'
+            } text-white`}
           >
-            {isSubmitting ? 'Sending...' : 'Send Message'}
+            {isSubmitting 
+              ? 'Sending Email & Submitting...' 
+              : submitStatus === 'error'
+              ? 'Try Again'
+              : 'Send Message'
+            }
           </button>
+          
+          {submitStatus === 'error' && (
+            <p className="mt-2 text-sm text-red-600">
+              There was an error submitting your form. Please try again or email directly.
+            </p>
+          )}
         </div>
       </form>
 
