@@ -1,12 +1,49 @@
+'use client';
+
+import { useState } from 'react';
+
 const ContactForm = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Get form data
+      const formData = new FormData(e.currentTarget);
+      const data = Object.fromEntries(formData.entries());
+      
+      // Also send to our email function as backup
+      fetch('/.netlify/functions/notify-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      }).catch(err => {
+        console.log('Email function error (non-critical):', err);
+      });
+      
+      // Let the form submit normally to Netlify
+    } catch (error) {
+      console.log('Form submission error:', error);
+    }
+    
+    // Don't prevent default - let Netlify handle the form submission
+    setIsSubmitting(false);
+  };
+
   return (
     <div className="bg-white">
-      {/* Actual form */}      <form 
+      <form 
         name="contact" 
         method="POST" 
         data-netlify="true"
         data-netlify-honeypot="bot-field"
         action="/success/"
+        onSubmit={handleSubmit}
         className="space-y-6"
       >
         {/* Hidden form name field */}
@@ -83,15 +120,14 @@ const ContactForm = () => {
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors resize-vertical"
             placeholder="Tell me about your project, timeline, and any specific requirements..."
           />
-        </div>
-
-        {/* Submit Button */}
+        </div>        {/* Submit Button */}
         <div>
           <button
             type="submit"
-            className="w-full px-6 py-3 rounded-lg font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700"
+            disabled={isSubmitting}
+            className="w-full px-6 py-3 rounded-lg font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Send Message
+            {isSubmitting ? 'Sending...' : 'Send Message'}
           </button>
         </div>
       </form>
