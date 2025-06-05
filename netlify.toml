@@ -24,6 +24,10 @@
 [forms]
   enabled = true
 
+# Functions configuration
+[functions]
+  directory = "netlify/functions"
+
 # Redirect rules
 [[redirects]]
   from = "/success"
