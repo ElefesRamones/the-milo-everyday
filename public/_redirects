@@ -1,0 +1,8 @@
+# Handle clean URLs for Next.js static export with trailing slashes
+/success    /success/    200
+/about      /about/      200
+/contact    /contact/    200
+/work       /work/       200
+
+# Fallback for everything else
+/*          /index.html  200

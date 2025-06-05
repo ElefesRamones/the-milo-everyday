@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Form Test</title>
+</head>
+<body>
+  <h1>Testing Contact Form Submission</h1>
+    <form name="contact" method="POST" netlify action="/success/">
+    <input type="hidden" name="form-name" value="contact" />
+    
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" value="Test User" required />
+    
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" value="test@example.com" required />
+    
+    <label for="projectType">Project Type:</label>
+    <select id="projectType" name="projectType" required>
+      <option value="Logo Design" selected>Logo Design</option>
+    </select>
+    
+    <label for="message">Message:</label>
+    <textarea id="message" name="message" required>This is a test message.</textarea>
+    
+    <button type="submit">Submit Test</button>
+  </form>
+  
+  <script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+      console.log('Form submitted');
+      console.log('Form data:', new FormData(this));
+    });
+  </script>
+</body>
+</html>

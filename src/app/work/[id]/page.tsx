@@ -55,6 +55,15 @@ const projectData: { [key: string]: any } = {
   // Add more projects as needed
 };
 
+// Generate static params for all available projects
+export async function generateStaticParams() {
+  const projectIds = Object.keys(projectData);
+  
+  return projectIds.map((id) => ({
+    id: id,
+  }));
+}
+
 interface ProjectPageProps {
   params: Promise<{ id: string }>;
 }

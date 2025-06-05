@@ -1,70 +1,24 @@
-"use client";
-
-import { useState } from "react";
-
-interface FormData {
-  name: string;
-  email: string;
-  projectType: string;
-  message: string;
-}
-
 const ContactForm = () => {
-  const [formData, setFormData] = useState<FormData>({
-    name: "",
-    email: "",
-    projectType: "",
-    message: "",
-  });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus("idle");
-
-    try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        setSubmitStatus("success");
-        setFormData({
-          name: "",
-          email: "",
-          projectType: "",
-          message: "",
-        });
-      } else {
-        const errorData = await response.json();
-        console.error('Error:', errorData.error);
-        setSubmitStatus("error");
-      }
-    } catch (error) {
-      console.error('Network error:', error);
-      setSubmitStatus("error");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <div className="bg-white">
-      <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Actual form */}      <form 
+        name="contact" 
+        method="POST" 
+        data-netlify="true"
+        data-netlify-honeypot="bot-field"
+        action="/success/"
+        className="space-y-6"
+      >
+        {/* Hidden form name field */}
+        <input type="hidden" name="form-name" value="contact" />
+        
+        {/* Hidden honeypot field */}
+        <div style={{ display: 'none' }}>
+          <label>
+            Don't fill this out if you're human: <input name="bot-field" />
+          </label>
+        </div>
+
         {/* Name Field */}
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -74,8 +28,6 @@ const ContactForm = () => {
             type="text"
             id="name"
             name="name"
-            value={formData.name}
-            onChange={handleChange}
             required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors"
             placeholder="Your full name"
@@ -91,8 +43,6 @@ const ContactForm = () => {
             type="email"
             id="email"
             name="email"
-            value={formData.email}
-            onChange={handleChange}
             required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors"
             placeholder="your.email@example.com"
@@ -107,8 +57,6 @@ const ContactForm = () => {
           <select
             id="projectType"
             name="projectType"
-            value={formData.projectType}
-            onChange={handleChange}
             required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors"
           >
@@ -130,8 +78,6 @@ const ContactForm = () => {
           <textarea
             id="message"
             name="message"
-            value={formData.message}
-            onChange={handleChange}
             required
             rows={6}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors resize-vertical"
@@ -143,34 +89,11 @@ const ContactForm = () => {
         <div>
           <button
             type="submit"
-            disabled={isSubmitting}
-            className={`w-full px-6 py-3 rounded-lg font-medium transition-colors ${
-              isSubmitting
-                ? "bg-gray-400 text-white cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
+            className="w-full px-6 py-3 rounded-lg font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700"
           >
-            {isSubmitting ? "Sending..." : "Send Message"}
+            Send Message
           </button>
-        </div>        {/* Status Messages */}
-        {submitStatus === "success" && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <p className="text-green-800">
-              <strong>Message sent successfully!</strong> Thank you for reaching out. 
-              Ramones will get back to you within 24-48 hours. You should also receive 
-              a confirmation email shortly.
-            </p>
-          </div>
-        )}
-
-        {submitStatus === "error" && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-800">
-              Sorry, there was an issue sending your message. Please try again or 
-              send an email directly to Elefesramones51@gmail.com.
-            </p>
-          </div>
-        )}
+        </div>
       </form>
 
       {/* Alternative Contact */}

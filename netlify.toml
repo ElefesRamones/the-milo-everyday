@@ -1,0 +1,55 @@
+[build]
+  command = "npm run build"
+  publish = "out"
+
+[build.environment]
+  NODE_ENV = "production"
+
+# Form handling settings  
+[build.processing]
+  skip_processing = false
+  
+[build.processing.html]
+  pretty_urls = true
+  
+[build.processing.css]
+  bundle = true
+  minify = true
+  
+[build.processing.js]
+  bundle = true
+  minify = true
+
+# Enable forms with email notifications
+[forms]
+  enabled = true
+
+# Redirect rules
+[[redirects]]
+  from = "/success"
+  to = "/success/"
+  status = 200
+
+[[redirects]]
+  from = "/about"
+  to = "/about/"
+  status = 200
+
+[[redirects]]
+  from = "/contact"
+  to = "/contact/"
+  status = 200
+
+[[redirects]]
+  from = "/work"
+  to = "/work/"
+  status = 200
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
